@@ -6,12 +6,33 @@
 [![Downloads](http://pepy.tech/badge/robotframework-pabot)](http://pepy.tech/project/robotframework-pabot)
 
 <img src="https://raw.githubusercontent.com/mkorpela/pabot/master/pabot.png" width="100">
+![Pabot logo](https://raw.githubusercontent.com/mkorpela/pabot/main/pabot.svg)
+
+<!-- Thumbnail preview image for GitHub social cards -->
+<img src="https://opengraph.githubassets.com/master/mkorpela/pabot" alt="pabot preview image" width="100%" />
+
 
 ----
 
 A parallel executor for [Robot Framework](http://www.robotframework.org) tests. With Pabot you can split one execution into multiple and save test execution time.
 
 [![Pabot presentation at robocon.io 2018](http://img.youtube.com/vi/i0RV6SJSIn8/0.jpg)](https://youtu.be/i0RV6SJSIn8 "Pabot presentation at robocon.io 2018")
+
+---
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Basic use](#basic-use)
+- [Contact](#contact)
+- [Contributing](#contributing-to-the-project)
+- [Command-line options](#command-line-options)
+- [PabotLib](#pabotlib)
+- [Controlling execution order](#controlling-execution-order-and-level-of-parallelism)
+- [Programmatic use](#programmatic-use)
+- [Global variables](#global-variables)
+
+---
 
 ## Installation:
 
