@@ -6,11 +6,6 @@
 [![Downloads](http://pepy.tech/badge/robotframework-pabot)](http://pepy.tech/project/robotframework-pabot)
 
 <img src="https://raw.githubusercontent.com/mkorpela/pabot/master/pabot.png" width="100">
-![Pabot logo](https://raw.githubusercontent.com/mkorpela/pabot/main/pabot.svg)
-
-<!-- Thumbnail preview image for GitHub social cards -->
-<img src="https://opengraph.githubassets.com/master/mkorpela/pabot" alt="pabot preview image" width="100%" />
-
 
 ----
 
