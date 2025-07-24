@@ -76,13 +76,36 @@ install_rf() {
   pip install -e .
 }
 
+modify_run_py() {
+  local run_py_file="$RF_DIR/atest/run.py"
+  local backup_file="$run_py_file.bak"
+
+  if [ -f "$backup_file" ]; then
+    echo "Modification already applied (backup found at $backup_file), skipping."
+    return
+  fi
+
+  echo "Modifying $run_py_file to replace robot run command with pabot.run..."
+
+  # Comment orginal row and add new after that
+  sed -i.bak -E '/str\(c\) for c in \[sys\.executable, CURDIR\.parent \/ "src\/robot\/run\.py", \*args\]/ {
+    s/^/#/
+    a\
+        str(c) for c in [sys.executable, "-m", "pabot.run", *args]
+  }' "$run_py_file"
+
+  echo "Modification done. Backup saved as $backup_file"
+}
+
 run_atests() {
   create_and_activate_venv
   trap deactivate_venv EXIT
 
   install_rf
+  modify_run_py  # This is temporary solution
   cd "$RF_DIR"
   python atest/run.py --processes 1
+  #python atest/run.py --processes 2 --suite "Robot.Variables.Yaml Variable File" --testlevelsplit
   echo "Results available in $RF_DIR/atest/results"
   cd ../..
 }

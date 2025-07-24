@@ -73,9 +73,36 @@ jobs:
       
       - name: Run Pytest
         run: pytest tests
+
+  robotframework-regression:
+    needs: validate-version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install OS dependencies
+        run: sudo apt-get update && sudo apt-get install -y git
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Run Robot Framework acceptance tests using pabot
+        run: |
+          chmod +x ./run-robotframework-atest.sh
+          ./run-robotframework-atest.sh
+        shell: bash
+
+      - name: Upload Robot Framework test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: robotframework-regression-results
+          path: robotframework/atest/results/
   
   build-and-release:
-    needs: [validate-version, run-tests]
+    needs: [validate-version, run-tests, robotframework-regression]
     runs-on: ubuntu-latest
     environment: release  # Optional: for manual approval
     
