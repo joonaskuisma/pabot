@@ -63,7 +63,7 @@ class _PabotLib(object):
         if resourcefile is None:
             return vals
         conf = configparser.ConfigParser()
-        conf.read(resourcefile)
+        conf.read(resourcefile, encoding="utf-8")
         for section in conf.sections():
             vals[section] = dict(
                 (k, conf.get(section, k)) for k in conf.options(section)
