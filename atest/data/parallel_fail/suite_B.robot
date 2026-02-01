@@ -11,6 +11,7 @@ Case 1
 Case 2
     [Tags]    B2
     Log    START-2
+    Fail    Intentional Failure
     Sleep    500ms
     Log    END-2
 

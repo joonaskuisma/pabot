@@ -13,16 +13,45 @@ Run Pabot
     ...    ${RESULTS_DIR}
     ...    @{args}
     ...    stdout=PIPE
-    ...    stderr=PIPE
+    ...    stderr=STDOUT
     ...    timeout=60s
     ...    cwd=${ATEST_DIR}
 
     Log    STDOUT:\n${result.stdout}
     Log    STDERR:\n${result.stderr}
-
-    Should Be Equal As Integers    ${result.rc}    ${expect_return_code}    Pabot exited with unexpected return code.
+    
+    IF    "${expect_return_code}" != "${EMPTY}"
+        Should Be Equal As Integers    ${result.rc}    ${expect_return_code}    Pabot exited with unexpected return code.
+    END
     # Should Be Empty    ${result.stderr}    Pabot produced unexpected output to stderr.
     RETURN    ${result}
+
+Start Pabotlib Server
+    [Arguments]    ${host}=127.0.0.1    ${port}=8270
+    # ${process}=    Run Process    C:\\Users\\kuism\\VSC_Projects\\Github\\pabot\\venv_312_pabot_editable\\Scripts\\python.exe
+    # ...    -c 
+    # ...    import sys; print(sys.executable)
+    # ...    cwd=${ATEST_DIR}
+    # ...    stdout=PIPE
+    # ...    stderr=PIPE
+
+    # Log    STDOUT:\n${process.stdout}
+    # Log    STDERR:\n${process.stderr}
+
+    ${process}=    Start Process
+    # TODO: muuta polku dynaamiseksi
+    ...    ${CURDIR}\\..\\..\\venv_312_pabot_editable\\Scripts\\python.exe
+    ...    -m 
+    ...    pabot.pabotlib
+    ...    resource.txt
+    ...    ${host}
+    ...    ${port}    
+    ...    cwd=${ATEST_DIR}
+    ...    stdout=PIPE
+    ...    stderr=PIPE
+    # Wait For Process    ${process}    timeout=2s    on_timeout=continue
+    # Log    STDOUT:\n${process.stdout}
+    # Log    STDERR:\n${process.stderr}
 
 Check Pabot Output Xml Contains
     [Arguments]    ${filepath}    ${text}
