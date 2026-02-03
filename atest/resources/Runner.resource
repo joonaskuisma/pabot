@@ -10,7 +10,7 @@ Run Pabot
     ${result}=    Run Process
     ...    pabot
     ...    --outputdir
-    ...    ${RESULTS_DIR}
+    ...    ${RESULTS_DIR}${/}${TEST_NAME}
     ...    @{args}
     ...    stdout=PIPE
     ...    stderr=STDOUT
@@ -87,3 +87,6 @@ Remove Pabot Suite Names File If Exists
 Clean Up Results
     Remove Directory If Exists    ${RESULTS_DIR}
     Remove Pabot Suite Names File If Exists
+
+Clean Results Directory
+    Remove Directory If Exists    path=${ROBOT_RESULTS_DIR}
