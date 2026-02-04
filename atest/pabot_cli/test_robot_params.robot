@@ -8,13 +8,18 @@ Documentation    These parameters are from Robot Framework Version:  7.3.2
 #                           terminology so that "test" is replaced with "task"
 #                           in logs and reports. By default the mode is got
 #                           from test/task header in data files.
-Rpa Works
-    [Documentation]    
+Rpa Works  
     ${res}=    Run Pabot
     ...    --testlevelsplit
     ...    --rpa
     ...    ${DATA_DIR}fast.robot
     ...    expect_return_code=2
+    Check XPath Text From HTML File    log.html    
+    ...    xpath=//div[@id='statistics-container']//h2    
+    ...    expected_text=Task Statistics
+    Check XPath Text From HTML File    report.html    
+    ...    xpath=//div[@id='statistics-container']//h2    
+    ...    expected_text=Task Statistics
 
 #     --language lang *     Activate localization. `lang` can be a name or a code
 #                           of a built-in language, or a path or a module name of
@@ -24,7 +29,7 @@ Language Works
     ...    --testlevelsplit
     ...    --language
     ...    Finnish
-    ...    ${DATA_DIR}fast.robot
+    ...    ${DATA_DIR}nopea.txt
     ...    expect_return_code=2
 
 #  -F --extension value     Parse only files with this extension when executing
@@ -65,6 +70,9 @@ Name Works
     ...    MyCustomSuiteName
     ...    ${DATA_DIR}fast.robot
     ...    expect_return_code=2
+    Check XPath Text From HTML File    log.html    
+    ...    xpath=//*[@id="s1"]/div[1]/div[1]/span[3]  
+    ...    expected_text=MyCustomSuiteName
 
 #  -D --doc documentation   Set the documentation of the top level suite.
 #                           Simple formatting is supported (e.g. *bold*). If the
@@ -77,9 +85,12 @@ Doc Works
     ${res}=    Run Pabot
     ...    --testlevelsplit
     ...    --doc
-    ...    "Very *good* example"
+    ...    "Very good example"
     ...    ${DATA_DIR}fast.robot
     ...    expect_return_code=2
+    Check XPath Text From HTML File    log.html    
+    ...    xpath=//*[@id="s1"]/div[2]/table/tbody/tr[th[normalize-space(.)='Documentation:']]/td/p 
+    ...    expected_text="Very good example"
 
 #  -M --metadata name:value *  Set metadata of the top level suite. Value can
 #                           contain formatting and be read from a file similarly
@@ -91,6 +102,9 @@ Metadata Works
     ...    Version:1.2
     ...    ${DATA_DIR}fast.robot
     ...    expect_return_code=2
+    Check XPath Text From HTML File    log.html    
+    ...    xpath=//*[@id="s1"]/div[2]/table/tbody/tr[th[normalize-space(.)='Version:']]/td/p
+    ...    expected_text=1.2
 
 #  -G --settag tag *        Sets given tag(s) to all executed tests.
 Settag Works

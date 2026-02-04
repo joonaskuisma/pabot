@@ -10,7 +10,8 @@ Pabot Respects Process Count
     ...    ${DATA_DIR}parallel.robot
     
     Check That All Pabot Output Files Exist
-    ${item_count}    ${max_worker_id}=    Get Pabot Max Item And Executors From Log    ${PABOT_MANAGER_FILE}
+    ${item_count}    ${max_worker_id}=    Get Pabot Max Item And Executors From Log    
+    # ...    ${ROBOT_RESULTS_DIR}${/}${TEST_NAME}${/}pabot_results${/}pabot_manager.log
     Should Be Equal As Integers    ${max_worker_id}    2    Pabot did not use 2 processes as expected.
     Should Be Equal As Integers    ${item_count}    2    Pabot did not run all expected items.
 
@@ -22,7 +23,8 @@ Pabot Respects Process Count With Multiple Suites
     ...    ${DATA_DIR}parallel_pass
     
     Check That All Pabot Output Files Exist
-    ${item_count}    ${max_worker_id}=    Get Pabot Max Item And Executors From Log    ${PABOT_MANAGER_FILE}
+    ${item_count}    ${max_worker_id}=    Get Pabot Max Item And Executors From Log    
+    # ...    ${ROBOT_RESULTS_DIR}${/}${TEST_NAME}${/}pabot_results${/}pabot_manager.log
     Should Be Equal As Integers    ${max_worker_id}    4    Pabot did not use 4 processes as expected.
     Should Be Equal As Integers    ${item_count}    9    Pabot did not run all expected items.
 
@@ -36,6 +38,7 @@ Pabot Respects Process Count With Multiple Suites With Different DataSources
     ...    ${DATA_DIR}parallel_pass${/}suite_C.robot
     
     Check That All Pabot Output Files Exist
-    ${item_count}    ${max_worker_id}=    Get Pabot Max Item And Executors From Log    ${PABOT_MANAGER_FILE}
+    ${item_count}    ${max_worker_id}=    Get Pabot Max Item And Executors From Log    
+    # ...    ${ROBOT_RESULTS_DIR}${/}${TEST_NAME}${/}pabot_results${/}pabot_manager.log
     Should Be Equal As Integers    ${max_worker_id}    4    Pabot did not use 4 processes as expected.
     Should Be Equal As Integers    ${item_count}    9    Pabot did not run all expected items.

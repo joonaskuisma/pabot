@@ -7,18 +7,18 @@ Resource    ../resources/Variables.resource
 
 *** Keywords ***
 Get Test Start And End
-    [Arguments]    ${testname}    ${xml}=${ROBOT_RESULTS_DIR}${/}output.xml
+    [Arguments]    ${testname}    ${xml}
     ${root}=    Parse XML    ${xml}
 
     ${status_elem}=    Get Element
     ...    ${root}
     ...    xpath=.//test[@name="${testname}"]/status
 
-    ${start}=    Get Element Attribute
+    ${start}=    XML.Get Element Attribute
     ...    ${status_elem}
     ...    start
 
-    ${elapsed}=    Get Element Attribute
+    ${elapsed}=    XML.Get Element Attribute
     ...    ${status_elem}
     ...    elapsed
 
@@ -30,7 +30,7 @@ Get Test Start And End
     RETURN    ${start}    ${end}
 
 Get Keyword Start And End In Test By Argument
-    [Arguments]    ${testname}    ${kwname}    ${argvalue}    ${xml}=${ROBOT_RESULTS_DIR}${/}output.xml
+    [Arguments]    ${testname}    ${kwname}    ${argvalue}    ${xml}
     ${root}=    Parse XML    ${xml}
 
     ${kws}=    Get Elements
@@ -43,8 +43,8 @@ Get Keyword Start And End In Test By Argument
             ${text}=    Get Element Text    ${arg}
             IF    '${text}' == '${argvalue}'
                 ${status_elem}=    Get Element    ${kw}    status
-                ${start}=    Get Element Attribute    ${status_elem}    start
-                ${elapsed}=    Get Element Attribute    ${status_elem}    elapsed
+                ${start}=    XML.Get Element Attribute    ${status_elem}    start
+                ${elapsed}=    XML.Get Element Attribute    ${status_elem}    elapsed
                 ${end}=    Add Time To Date
                 ...    ${start}
                 ...    ${elapsed}

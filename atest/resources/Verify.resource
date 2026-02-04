@@ -2,10 +2,13 @@
 Library    OperatingSystem
 Library    String
 Library    Collections
+Library    XML
+Library    SeleniumLibrary
+Resource    ../resources/Variables.resource
 
 *** Keywords ***
 Get Pabot Max Item And Executors From Log 
-    [Arguments]    ${logfile}
+    [Arguments]    ${logfile}=${ROBOT_RESULTS_DIR}${/}${TEST_NAME}${/}pabot_results${/}pabot_manager.log
     ${content}=    Get File    ${logfile}
     ${max_id}=    Get Max Pabot ID    ${content}    pattern=ID:
     ${max_executors}=    Get Max Pabot ID    ${content}
@@ -27,3 +30,17 @@ Get Max Pabot ID
 
     ${max_id}=    Evaluate    max(${ids})+1    # because IDs are zero-based
     RETURN    ${max_id}
+
+# Check XPath Text From HTML File
+#     [Arguments]    ${file}    ${xpath}    ${expected_text}
+#     ${xml}=    Parse Xml    source=${ROBOT_RESULTS_DIR}${/}${TEST_NAME}${/}${file}
+#     ${elem}=    Get Element    source=${xml}    xpath=${xpath}
+#     ${text}=    Get Element Text    source=${elem}
+#     Should Contain    container=${text}    item=${expected_text}
+
+Check XPath Text From HTML File
+    [Arguments]    ${file}    ${xpath}    ${expected_text}
+    ${path}=    Normalize Path    ${CURDIR}${/}..${/}results${/}${TEST_NAME}${/}${file}
+    Open Browser    ${path}    browser=headlesschrome
+    SeleniumLibrary.Element Text Should Be    locator=${xpath}    expected=${expected_text}
+    Close Browser

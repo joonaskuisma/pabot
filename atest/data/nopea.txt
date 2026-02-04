@@ -1,0 +1,26 @@
+*** Muuttujat ***
+${test_variable}    Not Set
+
+*** Testit ***
+Case 1
+    [Tagit]    tc1
+    Log    START-1
+    Log    ${test_variable}
+    Log    END-1
+
+Case 2
+    [Tagit]    tc2
+    Log    START-2
+    Log    END-2
+
+Case 3 Fail
+    [Tagit]    tc3
+    Log    START-3
+    Fail    Intentional Failure
+    Log    END-3
+
+Case 4 Fail
+    [Tagit]    tc4
+    Log    START-4    
+    Fail    Intentional Failure
+    Log    END-4

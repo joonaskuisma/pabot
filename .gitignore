@@ -13,3 +13,4 @@ dist
 *.xml
 .venv
 .tox
+atest/results/
