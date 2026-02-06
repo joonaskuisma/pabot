@@ -35,7 +35,7 @@ Run Pabot
     RETURN    ${result}
 
 Start Pabotlib Server
-    [Arguments]    ${host}=127.0.0.1    ${port}=8270
+    [Arguments]    ${host}=127.0.0.1    ${port}=8270    ${resource_file}=resource.txt
     # ${process}=    Run Process    C:\\Users\\kuism\\VSC_Projects\\Github\\pabot\\venv_312_pabot_editable\\Scripts\\python.exe
     # ...    -c 
     # ...    import sys; print(sys.executable)
@@ -51,7 +51,7 @@ Start Pabotlib Server
     ...    ${CURDIR}\\..\\..\\venv_312_pabot_editable\\Scripts\\python.exe
     ...    -m 
     ...    pabot.pabotlib
-    ...    resource.txt
+    ...    ${resource_file}
     ...    ${host}
     ...    ${port}    
     ...    cwd=${ATEST_DIR}

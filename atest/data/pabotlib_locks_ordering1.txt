@@ -1,0 +1,4 @@
+{
+--test Pabotlib Locks.Critical B Fail
+--test Pabotlib Locks.Critical A
+}
