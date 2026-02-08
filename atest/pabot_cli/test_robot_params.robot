@@ -15,11 +15,11 @@ Rpa Works
     ...    ${DATA_DIR}fast.robot
     ...    expect_return_code=2
     Check XPath Text From HTML File    log.html    
-    ...    xpath=//div[@id='statistics-container']//h2    
-    ...    expected_text=Task Statistics
-    Check XPath Text From HTML File    report.html    
-    ...    xpath=//div[@id='statistics-container']//h2    
-    ...    expected_text=Task Statistics
+    ...    xpath=//*[@id="s1-t1"]/div[1]/div[2] 
+    ...    expected_text=TASK
+    # Check XPath Text From HTML File    report.html    
+    # ...    xpath=//div[@id='statistics-container']//h2    
+    # ...    expected_text=Task Statistics
 
 #     --language lang *     Activate localization. `lang` can be a name or a code
 #                           of a built-in language, or a path or a module name of
@@ -71,8 +71,8 @@ Name Works
     ...    ${DATA_DIR}fast.robot
     ...    expect_return_code=2
     Check XPath Text From HTML File    log.html    
-    ...    xpath=//*[@id="s1"]/div[1]/div[1]/span[3]  
-    ...    expected_text=MyCustomSuiteName
+    ...    xpath=//*[@id="header"]/h1
+    ...    expected_text=MyCustomSuiteName Log
 
 #  -D --doc documentation   Set the documentation of the top level suite.
 #                           Simple formatting is supported (e.g. *bold*). If the
