@@ -1,6 +1,7 @@
 *** Settings ***
 Resource    ../resources/Runner.resource
 Documentation    Tests for pabot CLI options like --help, --version, --verbose, --processes all etc.
+Test Tags    pabot    cli
 # --verbose
 # --testlevelsplit
 # --command .. --end-command
@@ -50,10 +51,11 @@ Without Testlevelsplit Works
 # --command .. --end-command
 Command - End Command Works
     [Tags]    command
+    ${path}=    Normalize Path    ${CURDIR}${/}..${/}..${/}${VENV_NAME}${/}${VENV_PYTHON}
     ${res}=    Run Pabot
     ...    --testlevelsplit
     ...    --command
-    ...    python my_robot.py
+    ...    ${path} my_robot.py
     ...    --end-command
     ...    ${DATA_DIR}fast.robot
     ...    expect_return_code=2

@@ -1,0 +1,7 @@
+--test Fast.Case 2
+#SLEEP 1
+--test Fast.Case 1
+#SLEEP 2
+--test Fast.Case 4 Fail
+#SLEEP 3
+--test Fast.Case 3 Fail

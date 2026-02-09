@@ -701,7 +701,7 @@ Parser Works
     ...    --parser
     ...    MyParser
     ...    ${DATA_DIR}fast.robot
-    ...    expect_return_code=2
+    ...    expect_return_code=252
 
 #     --console type        How to report execution on the console.
 #                           verbose:  report every suite and test (default)

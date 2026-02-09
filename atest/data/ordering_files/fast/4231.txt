@@ -1,4 +1,4 @@
 --test Fast.Case 4 Fail
---test Fast.Case 3 Fail #DEPENDS Fast.Case 4 Fail
 --test Fast.Case 2
+--test Fast.Case 3 Fail
 --test Fast.Case 1

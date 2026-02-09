@@ -17,9 +17,6 @@ Run Pabot
     ...    --outputdir
     ...    ${RESULTS_DIR}${/}${TEST_NAME}
     ...    @{args}
-    # ...    stdin=NONE
-    # ...    stdout=NONE
-    # # ...    stderr=NONE
     ...    stdout=${stdout_file}
     ...    stderr=${stderr_file}
     ...    timeout=10s
@@ -45,10 +42,10 @@ Start Pabotlib Server
 
     # Log    STDOUT:\n${process.stdout}
     # Log    STDERR:\n${process.stderr}
-
+    ${path}=    Normalize Path    ${CURDIR}${/}..${/}..${/}${VENV_NAME}${/}${VENV_PYTHON}
     ${process}=    Start Process
     # TODO: muuta polku dynaamiseksi
-    ...    ${CURDIR}\\..\\..\\venv_312_pabot_editable\\Scripts\\python.exe
+    ...    ${path}
     ...    -m 
     ...    pabot.pabotlib
     ...    ${resource_file}

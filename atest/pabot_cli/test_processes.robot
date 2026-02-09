@@ -1,5 +1,6 @@
 *** Settings ***
 Resource    ../resources/Runner.resource
+Test Tags    pabot    processes
 
 *** Test Cases ***
 Pabot Respects Process Count

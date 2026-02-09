@@ -1,5 +1,6 @@
 *** Settings ***
 Resource    ../resources/Runner.resource
+Test Tags    pabot    ordering
 
 *** Test Cases ***
 Ordering Static Works
@@ -32,6 +33,6 @@ Ordering Static Dynamic Skip Works
     ...    dynamic
     ...    skip
     ...    ${DATA_DIR}fast.robot
-    ...    expect_return_code=2
+    ...    expect_return_code=1    # Note skip = pass as exit code
 
     Check That All Pabot Output Files Exist

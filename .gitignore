@@ -12,5 +12,7 @@ dist
 *.html
 *.xml
 .venv
+venv
 .tox
 atest/results/
+*pabot_manager.log
