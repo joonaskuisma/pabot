@@ -123,6 +123,10 @@ _EXECUTOR_COUNTER = 0
 _EXECUTOR_COUNTER_LOCK = threading.Lock()
 # Maximum number of executors (workers in the thread pool)
 _MAX_EXECUTORS = 1
+TAGPREFIXES = {
+    "id": "pabot:execution-ID:",
+    "info": "pabot:executor-info:"
+}
 
 _ROBOT_EXTENSIONS = [
     ".html",
@@ -250,8 +254,8 @@ def _set_executor_num(executor_num):
 
 
 def _get_executor_num():
-    """Get the executor number for the current thread."""
-    return getattr(_EXECUTOR_THREAD_LOCAL, 'executor_num', 0)
+    """Get the executor number for the current thread. Note that indexing starts from 1."""
+    return getattr(_EXECUTOR_THREAD_LOCAL, 'executor_num', 0) + 1
 
 
 def _execute_item_with_executor_tracking(item):
@@ -763,6 +767,12 @@ def _options_for_executor(
         options["dryrun"] = True
         options["listener"].append(listener_path)
         options["exitonfailure"] = True
+    options["settag"] = [
+        t for t in options.get("settag", [])
+        if not any(t.startswith(prefix) for prefix in TAGPREFIXES.values())
+    ]
+    options["settag"].append(f"{TAGPREFIXES['id']}{queueIndex}")
+    options["settag"].append(f"{TAGPREFIXES['info']}[{_get_executor_num()}/{processes}]")
     return _set_terminal_coloring_options(options)
 
 
@@ -1406,6 +1416,9 @@ def _options_for_rebot(options, start_time_string, end_time_string, num_of_execu
     )
     rebot_options["metadata"].append(
         f"Pabot Version:{PABOT_VERSION}"
+    )
+    rebot_options.setdefault("tagstatexclude", []).extend(
+        f"{prefix}*" for prefix in TAGPREFIXES.values()
     )
     if rebot_options.get("runemptysuite"):
         rebot_options["processemptysuite"] = True
