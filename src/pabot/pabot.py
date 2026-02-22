@@ -1402,17 +1402,28 @@ def _options_for_dryrun(options, outs_dir):
     return _set_terminal_coloring_options(options)
 
 
-def _options_for_rebot(options, start_time_string, end_time_string, num_of_executions=0):
+def _options_for_rebot(options, start_time_string, end_time_string, num_of_executors=None, num_of_executions=0):
     rebot_options = options.copy()
     rebot_options["starttime"] = start_time_string
-    rebot_options["endtime"] = end_time_string
+    rebot_options["endtime"] = None
     rebot_options["monitorcolors"] = "off"
     rebot_options["suite"] = []
     rebot_options["test"] = []
     rebot_options["exclude"] = []
     rebot_options["include"] = []
+    try:
+        start = datetime.datetime.strptime(start_time_string, "%Y-%m-%d %H:%M:%S.%f")
+        end = datetime.datetime.strptime(end_time_string, "%Y-%m-%d %H:%M:%S.%f")
+    except ValueError:
+        # If time parsing fails, set default values
+        start = datetime.datetime.now()
+        end = start
+    diff = end - start
+    diff_ms = str(diff)[:-3]
+    time_metadata = ["Pabot Time Start:%s" % start_time_string[:-3], "Pabot Time End:%s" % end_time_string[:-3], "Pabot Time Elapsed:%s" % diff_ms]
+    rebot_options["metadata"].extend(time_metadata)
     rebot_options["metadata"].append(
-        f"Pabot Info:[https://pabot.org/?ref=log|Pabot] result from {num_of_executions} executions."
+        f"Pabot Info:[https://pabot.org/?ref=log|Pabot] result from {num_of_executions} executions using up to {num_of_executors if num_of_executors is not None else "all"} parallel processes."
     )
     rebot_options["metadata"].append(
         f"Pabot Version:{PABOT_VERSION}"
@@ -1856,7 +1867,7 @@ def _report_results(outs_dir, pabot_args, options, start_time_string, tests_root
         _write_stats(stats)
         stdout_writer = get_stdout_writer()
         stderr_writer = get_stderr_writer(original_stderr_name='Internal Rebot')
-        exit_code = rebot(*outputs, **_options_for_rebot(options, start_time_string, _now(), total_num_of_executions), stdout=stdout_writer, stderr=stderr_writer)
+        exit_code = rebot(*outputs, **_options_for_rebot(options, start_time_string, _now(), pabot_args["processes"], total_num_of_executions), stdout=stdout_writer, stderr=stderr_writer)
     else:
         exit_code = _report_results_for_one_run(
             outs_dir, pabot_args, options, start_time_string, tests_root_name, stats
@@ -1938,7 +1949,7 @@ def _report_results_for_one_run(
         options["output"] = None  # Do not write output again with rebot
     stdout_writer = get_stdout_writer()
     stderr_writer = get_stderr_writer(original_stderr_name="Internal Rebot")
-    exit_code = rebot(output_path, **_options_for_rebot(options, start_time_string, ts, num_of_executions), stdout=stdout_writer, stderr=stderr_writer)
+    exit_code = rebot(output_path, **_options_for_rebot(options, start_time_string, _now(), pabot_args["processes"], num_of_executions), stdout=stdout_writer, stderr=stderr_writer)
     return exit_code
 
 
