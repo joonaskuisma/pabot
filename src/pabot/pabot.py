@@ -123,6 +123,9 @@ _EXECUTOR_COUNTER = 0
 _EXECUTOR_COUNTER_LOCK = threading.Lock()
 # Maximum number of executors (workers in the thread pool)
 _MAX_EXECUTORS = 1
+# Pool of free executor numbers (for proper reuse of executor slots)
+_FREE_EXECUTORS = []  # type: List[int]
+_EXECUTOR_ALLOCATION_LOCK = threading.Lock()
 TAGPREFIXES = {
     "id": "pabot:execution-ID:",
     "info": "pabot:executor-info:"
@@ -248,6 +251,25 @@ def _get_next_executor_num():
     return executor_num
 
 
+def _allocate_executor():
+    """Allocate next available executor number from the pool."""
+    global _FREE_EXECUTORS, _MAX_EXECUTORS
+    with _EXECUTOR_ALLOCATION_LOCK:
+        if not _FREE_EXECUTORS:
+            # Initialize pool if empty
+            _FREE_EXECUTORS = list(range(_MAX_EXECUTORS))
+        executor_num = _FREE_EXECUTORS.pop(0)  # Get first available executor
+    return executor_num
+
+
+def _release_executor(executor_num):
+    """Release executor back to the pool."""
+    global _FREE_EXECUTORS
+    with _EXECUTOR_ALLOCATION_LOCK:
+        _FREE_EXECUTORS.append(executor_num)
+        _FREE_EXECUTORS.sort()  # Keep sorted for predictability
+
+
 def _set_executor_num(executor_num):
     """Set the executor number for the current thread."""
     _EXECUTOR_THREAD_LOCAL.executor_num = executor_num
@@ -259,10 +281,17 @@ def _get_executor_num():
 
 
 def _execute_item_with_executor_tracking(item):
-    """Wrapper to track executor number and call execute_and_wait_with."""
-    executor_num = _get_next_executor_num()
+    """Wrapper to track executor number and call execute_and_wait_with.
+    
+    Allocates next available executor from the pool, ensuring that freed
+    executors are properly reused instead of cycling through all numbers.
+    """
+    executor_num = _allocate_executor()
     _set_executor_num(executor_num)
-    return execute_and_wait_with(item)
+    try:
+        return execute_and_wait_with(item)
+    finally:
+        _release_executor(executor_num)
 
 
 def execute_and_wait_with(item):
@@ -1402,9 +1431,12 @@ def _options_for_dryrun(options, outs_dir):
     return _set_terminal_coloring_options(options)
 
 
-def _options_for_rebot(options, start_time_string, end_time_string, num_of_executors=None, num_of_executions=0):
+def _options_for_rebot(options, start_time_string, end_time_string, num_of_executors=None, num_of_executions=0, argumentfiles_in_use=False):
     rebot_options = options.copy()
-    rebot_options["starttime"] = start_time_string
+    if argumentfiles_in_use:
+        rebot_options["starttime"] = start_time_string
+    else:
+        rebot_options["starttime"] = None
     rebot_options["endtime"] = None
     rebot_options["monitorcolors"] = "off"
     rebot_options["suite"] = []
@@ -1615,11 +1647,12 @@ def _parallel_execute_dynamic(
 ):
     # Signal handler is already set in main_program, no need to set it again
     # Just use the thread pool without managing signals
-    global _MAX_EXECUTORS, _EXECUTOR_COUNTER
+    global _MAX_EXECUTORS, _EXECUTOR_COUNTER, _FREE_EXECUTORS
 
     max_processes = processes or len(items)
     _MAX_EXECUTORS = max_processes
     _EXECUTOR_COUNTER = 0  # Reset executor counter for each parallel execution batch
+    _FREE_EXECUTORS = list(range(max_processes))  # Initialize free executor pool
     pool = ThreadPool(max_processes)
 
     pending = set(items)
@@ -1697,10 +1730,11 @@ def _parallel_execute(
     items, processes, datasources, outs_dir, opts_for_run, pabot_args
 ):
     # Signal handler is already set in main_program, no need to set it again
-    global _MAX_EXECUTORS, _EXECUTOR_COUNTER
+    global _MAX_EXECUTORS, _EXECUTOR_COUNTER, _FREE_EXECUTORS
     max_workers = len(items) if processes is None else processes
     _MAX_EXECUTORS = max_workers
     _EXECUTOR_COUNTER = 0  # Reset executor counter for each parallel execution batch
+    _FREE_EXECUTORS = list(range(max_workers))  # Initialize free executor pool
     pool = ThreadPool(max_workers)
     results = [pool.map_async(_execute_item_with_executor_tracking, items, 1)]
     delayed_result_append = 0
@@ -1867,7 +1901,7 @@ def _report_results(outs_dir, pabot_args, options, start_time_string, tests_root
         _write_stats(stats)
         stdout_writer = get_stdout_writer()
         stderr_writer = get_stderr_writer(original_stderr_name='Internal Rebot')
-        exit_code = rebot(*outputs, **_options_for_rebot(options, start_time_string, _now(), pabot_args["processes"], total_num_of_executions), stdout=stdout_writer, stderr=stderr_writer)
+        exit_code = rebot(*outputs, **_options_for_rebot(options, start_time_string, _now(), pabot_args["processes"], total_num_of_executions, True), stdout=stdout_writer, stderr=stderr_writer)
     else:
         exit_code = _report_results_for_one_run(
             outs_dir, pabot_args, options, start_time_string, tests_root_name, stats
