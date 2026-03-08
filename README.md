@@ -3,7 +3,8 @@
 [中文版](README_zh.md)
 
 [![Version](https://img.shields.io/pypi/v/robotframework-pabot.svg)](https://pypi.python.org/pypi/robotframework-pabot)
-[![Downloads](http://pepy.tech/badge/robotframework-pabot)](http://pepy.tech/project/robotframework-pabot)
+[![PyPI Downloads Total](https://static.pepy.tech/personalized-badge/robotframework-pabot?period=total&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=BLUE&left_text=downloads)](https://pepy.tech/projects/robotframework-pabot)
+[![PyPI Downloads Weekly](https://static.pepy.tech/personalized-badge/robotframework-pabot?period=weekly&units=INTERNATIONAL_SYSTEM&left_color=BLACK&right_color=BLUE&left_text=downloads%2Fweek)](https://pepy.tech/projects/robotframework-pabot)
 
 <img src="https://raw.githubusercontent.com/mkorpela/pabot/master/pabot.png" width="100">
 
@@ -66,6 +67,17 @@ You can install the optional stacktrace support with:
 
     pip install -U robotframework-pabot[stacktrace]
 
+Pabot also offers **analysis support** as an optional feature. When installed, it 
+enables generation of detailed execution analysis reports (executor timelines, 
+usage statistics, etc.) using **Plotly** and **Pandas**.
+
+You can install this optional analysis support with:
+
+    pip install -U robotframework-pabot[analysis]
+
+After installation, you can generate execution analysis using the 
+`--pabot-analysis` command-line option (See: [Command-line options](#command-line-options)).
+
 ## Basic use
 
 Split execution to suite files.
@@ -123,6 +135,7 @@ pabot [--verbose|--testlevelsplit|--command .. --end-command|
         --pabotprerunmodifier modifier|
         --no-rebot|
         --pabotconsole [verbose|dotted|quiet|none]|
+        --pabot-analysis none|embed|separate,[online|offline]|
         --help|--version]
       [robot options] [path ...]
 ```
@@ -249,6 +262,48 @@ Supports all [Robot Framework command line options](https://robotframework.org/r
     Similar to dotted, but suppresses execution progress output.
   - none:
     Produces no console output at all.
+
+**--pabot-analysis <mode[,plotly]>**
+
+  Generate an execution timeline analysis for a Pabot run.
+
+  The analysis report visualizes:
+  - suite execution timeline
+  - parallel worker utilization
+  - execution overlaps
+
+  This feature requires optional dependencies. Install them with:
+
+      pip install -U robotframework-pabot[analysis]
+
+  Example:
+
+      --pabot-analysis embed,offline
+
+  mode:
+      none (default)
+          Disable analysis generation.
+
+      embed
+          Embed the analysis report into the generated log.html.
+
+      separate
+          Generate a standalone analysis report file
+          named pabot_analysis.html in the pabot_results directory.
+
+  plotly:
+      online (default)
+          Load the Plotly JavaScript library from a CDN.
+          This keeps the generated report small but requires
+          internet access when opening the report.
+
+      offline
+          Bundle the Plotly JavaScript library directly into
+          the generated report. This allows the analysis to be
+          viewed without internet access.
+
+          Note: embedding Plotly increases the report size by
+          approximately 3–4 MB.
 
 **--help**             
   Print usage instructions.

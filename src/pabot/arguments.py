@@ -175,6 +175,10 @@ def _parse_pabot_args(args):  # type: (List[str]) -> Tuple[List[str], Dict[str, 
         "chunk": False,
         "no-rebot": False,
         "pabotconsole": "verbose",
+        "analysis": {
+            "mode": "none",      # none | embed | separate
+            "plotly": "online"      # online | offline
+        },
     }
 
     # Arguments that are flags (boolean)
@@ -202,6 +206,7 @@ def _parse_pabot_args(args):  # type: (List[str]) -> Tuple[List[str], Dict[str, 
         "artifacts": _parse_artifacts,
         "shard": _parse_shard,
         "pabotconsole": str,
+        "pabot-analysis": str,
     }
 
     argumentfiles = []
@@ -251,6 +256,38 @@ def _parse_pabot_args(args):  # type: (List[str]) -> Tuple[List[str], Dict[str, 
         if arg_name in flag_args:
             pabot_args[arg_name] = True
             i += 1
+            continue
+
+        if arg_name == "pabot-analysis":
+            if i + 1 >= len(args):
+                raise DataError("--pabot-analysis requires a value")
+
+            value = args[i + 1]
+
+            mode = "none"
+            plotly = "online"
+
+            tokens = [t.strip().lower() for t in value.split(",")]
+
+            for token in tokens:
+
+                if token in ("embed", "separate", "none"):
+                    mode = token
+
+                elif token in ("offline", "online"):
+                    plotly = "offline" if token == "offline" else "online"
+
+                else:
+                    raise DataError(
+                        f"Invalid value for --pabot-analysis: {token}"
+                    )
+
+            pabot_args["analysis"] = {
+                "mode": mode,
+                "plotly": plotly
+            }
+
+            i += 2
             continue
 
         # Handle value arguments

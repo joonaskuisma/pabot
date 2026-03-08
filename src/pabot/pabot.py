@@ -84,6 +84,7 @@ from .execution_items import (
 )
 from .result_merger import merge
 from .writer import get_writer, get_stdout_writer, get_stderr_writer, ThreadSafeWriter, MessageWriter
+from .pabot_analysis import generate_pabot_analysis
 
 try:
     import queue  # type: ignore
@@ -801,7 +802,7 @@ def _options_for_executor(
         if not any(t.startswith(prefix) for prefix in TAGPREFIXES.values())
     ]
     options["settag"].append(f"{TAGPREFIXES['id']}{queueIndex}")
-    options["settag"].append(f"{TAGPREFIXES['info']}[{_get_executor_num()}/{processes}]")
+    options["settag"].append(f"{TAGPREFIXES['info']}[{_get_executor_num()}/{processes if processes else _get_executor_num()}]")
     return _set_terminal_coloring_options(options)
 
 
@@ -2583,6 +2584,30 @@ def main_program(args):
             start_time_string,
             _get_suite_root_name(suite_groups),
         )
+
+        analysis = pabot_args.get("analysis", {})
+        if analysis.get("mode", "none") != "none":
+            try:
+                import pandas  # noqa: F401
+                import plotly  # noqa: F401
+
+                _write("Generating Pabot analysis...", level="info")
+                out_file = generate_pabot_analysis(
+                    outs_dir,
+                    pabot_args,
+                    options
+                )
+                if out_file:
+                    _write(f"Pabot analysis generated: {out_file}", level="info")
+                else:
+                    _write("Pabot analysis generation failed. No output file created.", color=Color.YELLOW, level="warning")
+            except ImportError:
+                _write(
+                    "\n[Pabot] Timeline analysis requires extra dependencies.\n"
+                    "Install them with:\n"
+                    "    pip install -U robotframework-pabot[analysis]\n", color=Color.YELLOW, level="warning"
+                )
+
         # If CTRL+C was pressed during execution, raise KeyboardInterrupt now. 
         # This can happen without previous errors if test are for example almost ready.
         if CTRL_C_PRESSED:
