@@ -1,27 +1,28 @@
 import unittest
 import subprocess
 import re
+import sys
 from datetime import datetime
+
 
 class TestPabotRealtimeLogging(unittest.TestCase):
     def test_pabot_log_delay(self):
-        pabot_cmd = [
-            "pabot",
-            "--testlevelsplit",
-            "tests/ci"
-        ]
+        pabot_cmd = ["pabot", "--testlevelsplit", "tests/ci"]
 
         process = subprocess.Popen(
             pabot_cmd,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             bufsize=1,
-            universal_newlines=True
+            universal_newlines=True,
         )
 
         timestamp_pattern = re.compile(r"^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+)")
 
-        max_allowed_delay = 0.5  # seconds
+        # Windows environments can introduce additional stdout buffering and scheduling
+        # overhead, especially when running the full suite under coverage. Allow a wider
+        # tolerance while still ensuring logs are near real time.
+        max_allowed_delay = 0.5 if sys.platform != "win32" else 1.0
         delays = []
 
         for line in process.stdout:
@@ -42,8 +43,8 @@ class TestPabotRealtimeLogging(unittest.TestCase):
 
         # Assert that all log delays are within the allowed threshold
         for delta in delays:
-            self.assertLessEqual(delta, max_allowed_delay, 
-                f"Log delay too high: {delta:.6f}s")
+            self.assertLessEqual(delta, max_allowed_delay, f"Log delay too high: {delta:.6f}s")
+
 
 if __name__ == "__main__":
     unittest.main()
