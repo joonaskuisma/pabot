@@ -1,6 +1,6 @@
 # Contributing to pabot
 
-Thank you for your interest in contributing to **pabot**! 🎉  
+Thank you for your interest in contributing to **pabot**! 🎉
 All kinds of contributions are welcome — bug reports, feature requests, documentation improvements, and code contributions.
 
 This document explains how to participate effectively and how we organize communication.
