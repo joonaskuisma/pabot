@@ -1,15 +1,64 @@
-tmp
-.mypy_cache
-pabot_results
-.pabotsuitenames
-build
-dist
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# IDE & Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
 .DS_Store
-.vscode
-*.egg-info
-*.pyc
-.idea
+
+# Testing & Coverage
+.pytest_cache/
+.tox/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Project specific
+tmp/
+pabot_results/
+.pabotsuitenames
 *.html
 *.xml
-.venv
-.tox
+!tests/fixtures/*.xml
+!tests/outputs/*.xml
+PabotLib.html
+
+# Build & Release
+build/
+dist/
+*.egg-info/
+.pre-commit-sample

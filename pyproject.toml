@@ -1,12 +1,40 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
+requires = ["setuptools>=65", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.pytest.ini_options]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
+addopts = "-v --tb=short --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
 filterwarnings = [
     "ignore:'robot.utils.PY2' is deprecated:DeprecationWarning:robot.utils",
     "ignore:'robot.utils.is_unicode' is deprecated:DeprecationWarning:robot.utils",
     "ignore::pytest.PytestCollectionWarning:module=tests.test_pabotlib",
 ]
+
+[tool.black]
+line-length = 100
+target-version = ['py310', 'py311', 'py312', 'py313', 'py314']
+
+[tool.isort]
+profile = "black"
+line_length = 100
+py_version = "310"
+skip_gitignore = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+select = ["E", "F", "W", "I", "UP"]
+ignore = ["E501"]  # Line too long, handled by black
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true
+check_untyped_defs = true
+ignore_missing_imports = true

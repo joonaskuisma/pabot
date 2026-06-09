@@ -1,8 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 set -e
-source .venv/bin/activate
-pip install -U robotframework
-pip install pytest
+
+# Activate virtual environment
+source .venv/bin/activate || . .venv/Scripts/activate
+
+# Ensure dependencies are up to date
+pip install -U pip setuptools wheel
+pip install -r requirements.txt
 pip install -e .
-python -m pytest tests
-deactivate
+
+# Run tests with coverage
+echo "Running test suite..."
+pytest tests -v --tb=short --cov=src/pabot --cov-report=term-missing
+
+echo "✓ All tests passed!"

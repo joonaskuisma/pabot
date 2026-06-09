@@ -1,1 +1,8 @@
-include LICENSE.txt
+include LICENSE
+include README.md
+include CONTRIBUTING.md
+include CODE_OF_CONDUCT.md
+include SECURITY.md
+recursive-include src *.py
+global-exclude __pycache__
+global-exclude *.py[cod]

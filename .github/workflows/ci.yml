@@ -1,23 +1,71 @@
 name: CI
 
-on: [ push, pull_request ]
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  linux:
-    name: Linux · Python ${{ matrix.python }} · RF ${{ matrix.robotframework }}
+  lint:
+    name: Lint & Code Quality
     runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
 
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: lint-${{ hashFiles('**/requirements.txt') }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip
+          pip install -r requirements.txt
+
+      - name: Run ruff
+        run: ruff check src tests
+
+      - name: Run black check
+        run: black --check src tests
+
+      - name: Run isort check
+        run: isort --check-only src tests
+
+      - name: Run mypy
+        run: mypy src
+
+  test:
+    name: Test · ${{ matrix.os }} · Python ${{ matrix.python }} · RF ${{ matrix.robotframework }}
+    runs-on: ${{ matrix.os }}
+    
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - python: "3.10"
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python: ["3.10", "3.12"]
+        robotframework: ["7.0.1", "7.2.2"]
+        exclude:
+          # Reduce matrix to save CI time - test latest on all, older on Linux only
+          - os: macos-latest
             robotframework: "7.0.1"
-
-          - python: "3.12"
-            robotframework: "7.2.2"
-
-          - python: "3.14"
+          - os: windows-latest
+            robotframework: "7.0.1"
+        include:
+          # Add one "latest" RF test
+          - os: ubuntu-latest
+            python: "3.14"
             robotframework: "latest"
 
     steps:
@@ -31,16 +79,19 @@ jobs:
       - name: Cache pip
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pip
+          path: |
+            ~/.cache/pip
+            ~/Library/Caches/pip
+            ~\AppData\Local\pip\Cache
           key: pip-${{ runner.os }}-${{ matrix.python }}-${{ matrix.robotframework }}-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             pip-${{ runner.os }}-${{ matrix.python }}-
 
       - name: Install dependencies
         run: |
-          python -m pip install -U pip
+          python -m pip install -U pip setuptools wheel
           pip install -r requirements.txt
-          pip install -U pytest
+          pip install pytest-cov
 
           if [ "${{ matrix.robotframework }}" = "latest" ]; then
             pip install -U robotframework
@@ -52,10 +103,53 @@ jobs:
 
       - name: Show versions
         run: |
-          echo "Python: $(python --version)"
-          echo "Robot Framework: $(robot --version)"
-          echo "pytest: $(pytest --version)"
-          echo "pip: $(pip --version)"
+          python --version
+          robot --version
+          pytest --version
 
-      - name: Run tests
-        run: pytest tests
+      - name: Run tests with coverage
+        run: pytest tests -v --tb=short --cov=src/pabot --cov-report=xml --cov-report=term-missing
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        if: matrix.os == 'ubuntu-latest' && matrix.python == '3.12'
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-pabot
+          fail_ci_if_error: false
+
+  compatibility:
+    name: Compatibility Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check packaging
+        run: |
+          python -m pip install -U pip build twine
+          python -m build
+          twine check dist/*
+
+  result:
+    name: Test Result
+    runs-on: ubuntu-latest
+    needs: [lint, test, compatibility]
+    if: always()
+    
+    steps:
+      - name: Check test results
+        run: |
+          if [[ "${{ needs.lint.result }}" != "success" ]] || \
+             [[ "${{ needs.test.result }}" != "success" ]] || \
+             [[ "${{ needs.compatibility.result }}" != "success" ]]; then
+            echo "❌ CI checks failed"
+            exit 1
+          fi
+          echo "✅ All CI checks passed"
