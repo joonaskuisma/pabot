@@ -7,12 +7,12 @@ pylint==3.2.6
 # Type checking
 mypy==1.14.1
 mypy-extensions==1.0.0
-types-setuptools==75.6.0.20241206
+types-setuptools==75.6.0.20241223
 
 # Testing
 pytest==8.3.4
 pytest-cov==6.0.0
-pytest-timeout==2.1.1
+pytest-timeout==2.4.0
 
 # Development & tooling
 pre-commit==4.0.1
